@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">LE4</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="amount">Amount</string>
+    <string name="title">Title</string>
+    <string name="category">Category</string>
+    <string name="date">Date</string>
+    <string name="income">Income</string>
+    <string name="expense">Expense</string>
+    <string name="save">Save</string>
+    <string name="welcome_msg">Welcome, Mahen!</string>
+    <string name="remaining_budget">Remaining Budget</string>
+    <string name="income2">Income</string>
+    <string name="expenses">Expenses</string>
+    <string name="summary"><![CDATA[Summary >]]></string>
+    <string name="recent_transactions">Recent Transactions</string>
+    <string name="todo">TODO</string>
+    <string name="expenses_summary">Expenses Summary</string>
+    <string name="food">Food</string>
+    <string name="transport">Transport</string>
+    <string name="bills">Bills</string>
+    <string name="entertainment">Entertainment</string>
+    <string name="other">Other</string>
+    <string name="total">Total</string>
+    <string name="settings">Settings</string>
+    <string name="monthly_budget">Monthly Budget:</string>
+    <string name="set_monthly_budget">Set monthly budget:</string>
+    <string name="save2">Save</string>
+    <string name="backup_data">Backup Data</string>
+    <string name="restore_from_backup">Restore From Backup</string>
+    <string name="transactions">Transactions</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="transactions2">Transactions</string>
+    <string name="settings2">Settings</string>
+</resources>

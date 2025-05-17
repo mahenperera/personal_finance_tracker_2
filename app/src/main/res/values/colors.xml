@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="selector_nav_item_color">#0000FF</color>
+    <color name="incomeGreen">#4CBB17</color>
+    <color name="expenseRed">#F44336</color>
+    <color name="incomeCard">#ccffcc</color>
+    <color name="expenseCard">#ffb3b3</color>
+    <color name="budgetCard">#80b3ff</color>
+    <color name="accentColor">#e6f0ff</color>
+    <color name="accentColor2">#99c2ff</color>
+    <color name="button">#005ce6</color>
+    <color name="listItem">#F3F9FD</color>
+</resources>
