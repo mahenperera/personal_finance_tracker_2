@@ -4,7 +4,7 @@ import androidx.room.*
 
 @Dao
 interface TransactionDao {
-    @Query("SELECT * FROM transactions ORDER BY date DESC")
+    @Query("SELECT * FROM transactions")
     suspend fun getAll(): List<Transaction>
 
     @Insert
@@ -16,9 +16,12 @@ interface TransactionDao {
     @Delete
     suspend fun delete(transaction: Transaction)
 
-    @Query("SELECT * FROM transactions WHERE category = :category ORDER BY date DESC")
+    @Query("SELECT * FROM transactions WHERE category = :category")
     suspend fun getByCategory(category: String): List<Transaction>
 
     @Query("SELECT * FROM transactions WHERE type = :type")
     suspend fun getByType(type: String): List<Transaction>
+
+    @Query("DELETE FROM transactions")
+    suspend fun clearAll()
 }

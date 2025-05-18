@@ -9,7 +9,11 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.textfield.TextInputEditText
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -50,16 +54,34 @@ class Settings : Fragment() {
 
         backupBtn.setOnClickListener {
             val budgetValue = prefs.getFloat("monthly_budget", 0f)
-            val transactionsJson = prefs.getString("transactions", "[]")
 
-            val json = JSONObject()
-            json.put("monthly_budget", budgetValue)
-            json.put("transactions", JSONArray(transactionsJson))
+            val dao = AppDatabase.getDatabase(requireContext()).transactionDao()
 
-            val file = File(requireContext().filesDir, "transaction_backup.json")
-            file.writeText(json.toString())
+            lifecycleScope.launch {
+                try {
+                    val transactions = dao.getAll()
 
-            Toast.makeText(requireContext(), "Backup Saved", Toast.LENGTH_SHORT).show()
+                    val transactionsForBackup = transactions.map {
+                        it.copy(id = 0)
+                    }
+
+                    val gson = Gson()
+                    val transactionsJson = gson.toJson(transactionsForBackup)
+
+                    val json = JSONObject().apply {
+                        put("monthly_budget", budgetValue)
+                        put("transactions", JSONArray(transactionsJson))
+                    }
+
+                    val file = File(requireContext().filesDir, "transaction_backup.json")
+                    file.writeText(json.toString())
+
+                    Toast.makeText(requireContext(), "Backup Saved", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Toast.makeText(requireContext(), "Failed to backup: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
         }
 
         restoreBtn.setOnClickListener {
@@ -67,19 +89,26 @@ class Settings : Fragment() {
                 val file = File(requireContext().filesDir, "transaction_backup.json")
                 if (file.exists()) {
                     val jsonString = file.readText()
-
                     val json = JSONObject(jsonString)
+
                     val restoredBudget = json.getDouble("monthly_budget").toFloat()
-                    val restoredTransactions = json.getJSONArray("transactions").toString()
-
-                    prefs.edit()
-                        .putFloat("monthly_budget", restoredBudget)
-                        .putString("transactions", restoredTransactions)
-                        .apply()
-
+                    prefs.edit().putFloat("monthly_budget", restoredBudget).apply()
                     budgetInput?.setText(restoredBudget.toString())
 
-                    Toast.makeText(requireContext(), "Backup Restored", Toast.LENGTH_SHORT).show()
+                    val transactionsJson = json.getJSONArray("transactions")
+                    val gson = Gson()
+                    val type = object : TypeToken<List<Transaction>>() {}.type
+                    val restoredTransactions: List<Transaction> = gson.fromJson(transactionsJson.toString(), type)
+
+                    val dao = AppDatabase.getDatabase(requireContext()).transactionDao()
+
+                    lifecycleScope.launch {
+                        dao.clearAll()
+
+                        restoredTransactions.forEach { dao.insert(it.copy(id = 0)) }
+
+                        Toast.makeText(requireContext(), "Backup Restored", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     Toast.makeText(requireContext(), "No backup file found.", Toast.LENGTH_SHORT).show()
                 }
