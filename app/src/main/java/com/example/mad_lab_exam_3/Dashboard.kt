@@ -160,13 +160,13 @@ class Dashboard : Fragment() {
             )
 
             lifecycleScope.launch {
-                dao.insert(transaction) // Add to Room DB
+                dao.insert(transaction)
 
                 if (type == "expense") {
                     val prefs = requireContext().getSharedPreferences("finance_tracker_prefs", Context.MODE_PRIVATE)
                     val budget = prefs.getFloat("monthly_budget", 0f)
 
-                    val allExpenses = dao.getByType("expense") // fetch expense transactions from DB
+                    val allExpenses = dao.getByType("expense")
                     val totalExpenses = allExpenses.sumOf { it.amount }
 
                     if (budget > 0) {
