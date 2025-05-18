@@ -21,8 +21,10 @@ class ExpensesSummary : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val db = AppDatabase.getDatabase(requireContext())
+        val dao = db.transactionDao()
+
         lifecycleScope.launch {
-            val dao = AppDatabase.getDatabase(requireContext()).transactionDao()
             val expenses = dao.getByType("expense")
 
             val foodTotal = expenses.filter { it.category.equals("Food", true) }.sumOf { it.amount }

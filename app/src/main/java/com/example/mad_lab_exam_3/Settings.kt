@@ -55,7 +55,8 @@ class Settings : Fragment() {
         backupBtn.setOnClickListener {
             val budgetValue = prefs.getFloat("monthly_budget", 0f)
 
-            val dao = AppDatabase.getDatabase(requireContext()).transactionDao()
+            val db = AppDatabase.getDatabase(requireContext())
+            val dao = db.transactionDao()
 
             lifecycleScope.launch {
                 try {
@@ -100,7 +101,8 @@ class Settings : Fragment() {
                     val type = object : TypeToken<List<Transaction>>() {}.type
                     val restoredTransactions: List<Transaction> = gson.fromJson(transactionsJson.toString(), type)
 
-                    val dao = AppDatabase.getDatabase(requireContext()).transactionDao()
+                    val db = AppDatabase.getDatabase(requireContext())
+                    val dao = db.transactionDao()
 
                     lifecycleScope.launch {
                         dao.clearAll()

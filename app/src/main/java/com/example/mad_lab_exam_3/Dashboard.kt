@@ -36,7 +36,8 @@ class Dashboard : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val dao = AppDatabase.getDatabase(requireContext()).transactionDao()
+        val db = AppDatabase.getDatabase(requireContext())
+        val dao = db.transactionDao()
 
         lifecycleScope.launch {
 
@@ -183,6 +184,7 @@ class Dashboard : Fragment() {
                 alertDialog.dismiss()
 
                 refreshTransactionList(dao)
+                updateDashboard(dao)
             }
         }
 
@@ -198,6 +200,7 @@ class Dashboard : Fragment() {
                     dao.delete(transaction)
                     Toast.makeText(requireContext(), "Deleted", Toast.LENGTH_SHORT).show()
                     refreshTransactionList(dao)
+                    updateDashboard(dao)
                 }
             }
             .setNegativeButton("Cancel", null)
@@ -207,7 +210,8 @@ class Dashboard : Fragment() {
     private fun refreshTransactionList(dao: TransactionDao) {
         lifecycleScope.launch {
             val updated = dao.getAll()
-            setupRecyclerView(updated, dao)
+            val recentTransactions = updated.takeLast(3).reversed()
+            setupRecyclerView(recentTransactions, dao)
         }
     }
 
@@ -313,9 +317,34 @@ class Dashboard : Fragment() {
                 Toast.makeText(requireContext(), "Transaction Updated", Toast.LENGTH_SHORT).show()
                 alertDialog.dismiss()
                 refreshTransactionList(dao)
+                updateDashboard(dao)
             }
         }
 
         alertDialog.show()
     }
+
+    private fun updateDashboard(dao: TransactionDao) {
+        lifecycleScope.launch {
+            val transactions = dao.getAll()
+
+            val totalIncome = transactions.filter { it.type == "income" }.sumOf { it.amount }
+            val totalExpense = transactions.filter { it.type == "expense" }.sumOf { it.amount }
+
+            val prefs = requireContext().getSharedPreferences("finance_tracker_prefs", Context.MODE_PRIVATE)
+            val budget = prefs.getFloat("monthly_budget", 0f)
+            val remaining = budget - totalExpense
+
+            view?.findViewById<TextView>(R.id.totalIncomeValue)?.text = "Rs. %.2f".format(totalIncome)
+            view?.findViewById<TextView>(R.id.totalExpensesValue)?.text = "Rs. %.2f".format(totalExpense)
+            view?.findViewById<TextView>(R.id.remainingBudgetValue)?.text = "Rs. %.2f".format(remaining)
+
+            if (remaining < 0) {
+                Toast.makeText(requireContext(), "Warning: Budget exceeded!", Toast.LENGTH_LONG).show()
+            } else if (remaining <= 1000) {
+                Toast.makeText(requireContext(), "Warning: You have only Rs. 1000 budget left!", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
 }
